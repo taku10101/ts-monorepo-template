@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@/generated/prisma"
+import type { PrismaClient } from "../../../src/generated/prisma/client"
 
 export async function seedTodos(prisma: PrismaClient) {
 	console.log("Seeding todos...")
@@ -31,13 +31,13 @@ export async function seedTodos(prisma: PrismaClient) {
 		},
 	]
 
-	for (const todo of todos) {
-		await prisma.todo.upsert({
-			where: { title: todo.title },
-			update: {},
-			create: todo,
-		})
-	}
+	// Clear existing todos
+	await prisma.todo.deleteMany()
+
+	// Create new todos
+	await prisma.todo.createMany({
+		data: todos,
+	})
 
 	const count = await prisma.todo.count()
 	console.log(`✓ Seeded ${count} todos`)

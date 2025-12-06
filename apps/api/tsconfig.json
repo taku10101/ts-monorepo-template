@@ -11,11 +11,20 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
     "sourceMap": true,
-    "types": ["@types/node"]
+    "types": ["@types/node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/lib/**/*",
+    "src/routes/**/*",
+    "src/services/**/*",
+    "src/repositories/**/*",
+    "src/index.ts"
+  ],
   "exclude": ["node_modules", "dist", "src/generated/**/*"]
 }

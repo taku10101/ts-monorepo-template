@@ -1,5 +1,5 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
-import type { Todo } from "@prisma/client"
+import type { Todo } from "@/generated/prisma/client"
 import { TodoService } from "../services/todo.service"
 
 const TodoSchema = z.object({

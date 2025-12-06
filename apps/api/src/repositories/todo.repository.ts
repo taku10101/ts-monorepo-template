@@ -1,4 +1,4 @@
-import type { Prisma, Todo } from "@prisma/client"
+import type { Prisma, Todo } from "@/generated/prisma/client"
 import { prisma } from "../lib/prisma"
 
 export class TodoRepository {

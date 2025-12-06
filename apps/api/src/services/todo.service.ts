@@ -1,4 +1,4 @@
-import type { Todo } from "@prisma/client"
+import type { Todo } from "@/generated/prisma/client"
 import { TodoRepository } from "../repositories/todo.repository"
 
 export type CreateTodoInput = {

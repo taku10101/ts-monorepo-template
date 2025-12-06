@@ -29,6 +29,8 @@ jobs:
 
       - name: Generate Prisma Client
         run: pnpm --filter @monorepo/api prisma:generate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
       - name: Run Biome check
         run: pnpm biome:check

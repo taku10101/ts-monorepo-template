@@ -146,15 +146,35 @@ src/
 
 ### データベース
 
-- **ORM**: Prisma 7.x
+- **ORM**: Prisma 7.x (TypeScript-based query compiler、Rust-free)
 - **Database**: PostgreSQL 16 (Docker Compose経由)
+- **Driver Adapter**: `@prisma/adapter-pg` (Prisma 7では必須)
 - **スキーマの場所**: `apps/api/prisma/schema.prisma`
 - **クライアント出力先**: `apps/api/src/generated/prisma/` (カスタムロケーション、デフォルトではない)
+- **設定ファイル**: `apps/api/prisma.config.ts` (マイグレーション用のDB接続設定)
 - **シードデータ**: `apps/api/prisma/seed/` ディレクトリ
+
+Prisma 7の重要な変更点:
+- schema.prismaの`datasource`ブロックには`url`プロパティを含めない (Prisma 7では非推奨)
+- データベース接続URLは`prisma.config.ts`で管理
+- PrismaClientの初期化時にdriver adapterを渡す必要がある
+- `engineType = "client"`を使用 (TypeScriptベースのクエリコンパイラ)
 
 スキーマ変更後:
 1. `pnpm prisma:generate` を実行してクライアントを再生成
 2. `pnpm prisma:migrate` を実行してマイグレーションを作成・適用
+
+PrismaClient初期化の例:
+```typescript
+import { PrismaPg } from "@prisma/adapter-pg"
+import { PrismaClient } from "@/generated/prisma/client"
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+})
+
+const prisma = new PrismaClient({ adapter })
+```
 
 ### 環境変数
 
@@ -225,8 +245,10 @@ const schema = createFormSchema({
 ### Prismaでの作業
 
 - 常にリポジトリパターンを使用 (ルートから直接Prismaを呼び出さない)
-- 生成されたクライアントからインポート: `import { PrismaClient } from '@/generated/prisma'`
-- `apps/api/src/lib/prisma.ts` のシングルトンパターンを使用
+- 生成されたクライアントからインポート: `import { PrismaClient } from '@/generated/prisma/client'`
+- 型のインポート: `import type { Todo, Prisma } from '@/generated/prisma/client'`
+- `apps/api/src/lib/prisma.ts` のシングルトンパターンを使用 (adapterの初期化を含む)
+- Prisma 7ではdriver adapterが必須 (`@prisma/adapter-pg`を使用)
 
 ## TypeScript設定
 
