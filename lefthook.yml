@@ -1,0 +1,26 @@
+# Lefthook configuration for monorepo
+# https://github.com/evilmartians/lefthook
+
+pre-commit:
+  parallel: true
+  commands:
+    # Lint and format staged files
+    biome:
+      glob: "*.{js,ts,jsx,tsx,json}"
+      run: pnpm biome:check:write {staged_files}
+      stage_fixed: true
+
+    # Type check all projects
+    typecheck:
+      run: pnpm typecheck
+
+pre-push:
+  parallel: true
+  commands:
+    # Run CI checks before pushing
+    ci:
+      run: pnpm ci
+
+    # Type check all projects
+    typecheck:
+      run: pnpm typecheck

@@ -1,0 +1,32 @@
+{
+  "name": "monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "lefthook install",
+    "dev": "pnpm --parallel dev",
+    "build": "pnpm --recursive build",
+    "clean": "pnpm --recursive clean",
+    "typecheck": "pnpm --recursive --parallel run typecheck",
+    "biome:check": "biome check apps/web apps/api",
+    "biome:check:write": "biome check --write apps/web apps/api",
+    "format": "biome format apps/web apps/api",
+    "format:fix": "biome format --write apps/web apps/api",
+    "lint": "biome lint apps/web apps/api",
+    "lint:fix": "biome lint --write apps/web apps/api",
+    "ci": "biome ci apps/web apps/api",
+    "prisma": {
+      "generate": "pnpm --recursive --parallel run prisma:generate",
+      "migrate": "pnpm --recursive --parallel run prisma:migrate",
+      "studio": "pnpm --recursive --parallel run prisma:studio",
+      "seed": "pnpm --recursive --parallel run prisma:seed"
+    },
+    "db:init": "pnpm --recursive --parallel run db:init && pnpm --recursive --parallel run db:seed"
+  },
+  "packageManager": "pnpm@10.17.0+sha512.fce8a3dd29a4ed2ec566fb53efbb04d8c44a0f05bc6f24a73046910fb9c3ce7afa35a0980500668fa3573345bd644644fa98338fa168235c80f4aa17aa17fbef",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.8",
+    "lefthook": "^2.0.8",
+    "typescript": "^5.6.3"
+  }
+}

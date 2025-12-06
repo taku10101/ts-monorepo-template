@@ -1,0 +1,33 @@
+{
+  "model": "sonnet",
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash(pnpm biome:check:*)",
+      "Bash(pnpm biome:check:write:*)",
+      "Bash(pnpm exec biome:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm lefthook:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm prisma:*)",
+      "Bash(docker compose:*)",
+      "Bash(afplay:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "WebFetch(domain:zenn.dev)",
+      "Read(/Users/hiramatsutakumi/**)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Bash(rm -rf:*)",
+      "Bash(git push --force:*)"
+    ]
+  }
+}
