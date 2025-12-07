@@ -14,6 +14,10 @@ template/
 │   │   │   │   ├── form/ # 汎用フォームシステム (React Hook Form + Zod)
 │   │   │   │   └── ui/   # shadcn/ui コンポーネント
 │   │   │   └── lib/      # ユーティリティ
+│   │   ├── mock/         # モックサーバー (json-server)
+│   │   │   ├── types/        # 型定義
+│   │   │   ├── generators/   # データジェネレーター
+│   │   │   └── data/         # 生成されたJSONデータ
 │   │   └── package.json
 │   └── api/              # Hono API サーバー (OpenAPI/Swagger対応)
 │       ├── src/
@@ -61,6 +65,26 @@ pnpm dev
 pnpm --filter @monorepo/web dev    # Next.js (http://localhost:3000)
 pnpm --filter @monorepo/api dev    # Hono API (http://localhost:3001)
 ```
+
+### モックサーバー (Web)
+
+TypeScriptインターフェースから型安全なモックデータを生成し、json-serverで提供します。
+
+```bash
+# Webディレクトリに移動
+cd apps/web
+
+# モックデータ生成
+pnpm mock:generate
+
+# モックサーバー起動 (http://localhost:3002)
+pnpm mock:server
+
+# データ生成 + サーバー起動
+pnpm mock:dev
+```
+
+詳細は [apps/web/mock/README.md](./apps/web/mock/README.md) を参照してください。
 
 ## データベース管理 (API)
 
@@ -209,6 +233,11 @@ Hono APIサーバー (http://localhost:3001):
 - **バリデーション**: Zod
 - **開発**: tsx (hot-reloading)
 
+### モックサーバー (apps/web/mock)
+- **json-server**: RESTful APIモックサーバー
+- **@faker-js/faker**: リアルなダミーデータ生成
+- **TypeScript**: 型安全なデータ生成
+
 ### 開発ツール
 - **パッケージマネージャー**: pnpm
 - **Linter/Formatter**: Biome (ESLint + Prettier代替)
@@ -259,6 +288,6 @@ const schema = createFormSchema({
 
 ## 詳細情報
 
-より詳しいガイダンスについては、[CLAUDE.md](./CLAUDE.md) を参照してください。
-# template
-# template
+- より詳しいガイダンス: [CLAUDE.md](./CLAUDE.md)
+- モックサーバーの使い方: [apps/web/mock/README.md](./apps/web/mock/README.md)
+- モックサーバー詳細ガイド: [apps/web/mock/USAGE.md](./apps/web/mock/USAGE.md)

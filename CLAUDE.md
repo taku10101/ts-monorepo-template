@@ -36,6 +36,23 @@ pnpm --filter @monorepo/web dev    # Next.js (http://localhost:3000)
 pnpm --filter @monorepo/api dev    # Hono API (http://localhost:3001)
 ```
 
+### モックサーバー (Webのみ)
+```bash
+# Webディレクトリに移動
+cd apps/web
+
+# モックデータを生成
+pnpm mock:generate
+
+# モックサーバーを起動 (http://localhost:3002)
+pnpm mock:server
+
+# データ生成 + サーバー起動
+pnpm mock:dev
+```
+
+詳細は `apps/web/mock/README.md` と `apps/web/mock/USAGE.md` を参照してください。
+
 ### データベース (APIのみ)
 ```bash
 # 最初にAPIディレクトリに移動

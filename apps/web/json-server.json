@@ -1,0 +1,6 @@
+{
+  "port": 3002,
+  "host": "localhost",
+  "delay": 0,
+  "static": "./mock/public"
+}
