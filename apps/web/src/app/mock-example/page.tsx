@@ -43,8 +43,8 @@ export default function MockExamplePage() {
 			<div className="container mx-auto p-8">
 				<div className="rounded-lg border border-red-500 bg-red-50 p-4">
 					<p className="font-semibold text-red-900">Error</p>
-					<p className="text-sm text-red-700">{error}</p>
-					<p className="mt-2 text-sm text-red-600">
+					<p className="text-red-700 text-sm">{error}</p>
+					<p className="mt-2 text-red-600 text-sm">
 						Make sure the mock server is running: pnpm mock:dev
 					</p>
 				</div>
@@ -55,14 +55,14 @@ export default function MockExamplePage() {
 	return (
 		<div className="container mx-auto space-y-8 p-8">
 			<div>
-				<h1 className="mb-2 text-3xl font-bold">Mock API Example</h1>
+				<h1 className="mb-2 font-bold text-3xl">Mock API Example</h1>
 				<p className="text-gray-600">
 					This page demonstrates fetching data from the json-server mock API
 				</p>
 			</div>
 
 			<section>
-				<h2 className="mb-4 text-2xl font-semibold">Users</h2>
+				<h2 className="mb-4 font-semibold text-2xl">Users</h2>
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 					{users.map((user) => (
 						<div key={user.id} className="rounded-lg border p-4">
@@ -72,7 +72,7 @@ export default function MockExamplePage() {
 								)}
 								<div>
 									<p className="font-semibold">{user.name}</p>
-									<p className="text-sm text-gray-600">{user.email}</p>
+									<p className="text-gray-600 text-sm">{user.email}</p>
 								</div>
 							</div>
 						</div>
@@ -81,13 +81,13 @@ export default function MockExamplePage() {
 			</section>
 
 			<section>
-				<h2 className="mb-4 text-2xl font-semibold">Recent Posts (5)</h2>
+				<h2 className="mb-4 font-semibold text-2xl">Recent Posts (5)</h2>
 				<div className="space-y-4">
 					{posts.map((post) => (
 						<div key={post.id} className="rounded-lg border p-4">
 							<h3 className="mb-2 font-semibold">{post.title}</h3>
-							<p className="text-sm text-gray-700">{post.content}</p>
-							<div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+							<p className="text-gray-700 text-sm">{post.content}</p>
+							<div className="mt-2 flex items-center gap-2 text-gray-500 text-sm">
 								<span>Author ID: {post.authorId}</span>
 								<span>•</span>
 								<span>{post.published ? "Published" : "Draft"}</span>

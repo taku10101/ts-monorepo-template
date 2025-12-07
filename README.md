@@ -11,9 +11,10 @@ template/
 │   │   ├── src/
 │   │   │   ├── app/      # Next.js App Router ページ
 │   │   │   ├── components/
-│   │   │   │   ├── form/ # 汎用フォームシステム (React Hook Form + Zod)
-│   │   │   │   └── ui/   # shadcn/ui コンポーネント
-│   │   │   └── lib/      # ユーティリティ
+│   │   │   │   ├── form/  # 汎用フォームシステム (React Hook Form + Zod)
+│   │   │   │   ├── table/ # 汎用テーブルシステム (TanStack Table + Shadcn UI)
+│   │   │   │   └── ui/    # shadcn/ui コンポーネント
+│   │   │   └── lib/       # ユーティリティ
 │   │   ├── mock/         # モックサーバー (json-server)
 │   │   │   ├── types/        # 型定義
 │   │   │   ├── generators/   # データジェネレーター
@@ -177,6 +178,11 @@ Next.js 15 App Routerとカスタムフォームシステム:
   - 型安全なコンテキスト
   - 事前構築されたフィールドコンポーネント
   - バリデーションユーティリティ (`formValidation.email()`, `password()`, etc.)
+- **汎用テーブルシステム** (`components/table/`): TanStack Table + Shadcn UIベースの再利用可能なテーブルコンポーネント
+  - 型安全なカラム定義
+  - ページネーション（クライアント側・サーバー側）
+  - 行選択機能
+  - カスタマイズ可能なレンダリング
 - TypeScriptジェネリクスによるZodスキーマからフォームフィールドへの完全な型推論
 - shadcn/uiコンポーネント (Tailwind CSS v4 + class-variance-authority)
 
@@ -272,6 +278,30 @@ const schema = createFormSchema({
 </FormProvider>
 ```
 
+### 新しいテーブルの追加 (Web)
+
+既存のテーブルシステムを使用してください。詳細は [apps/web/src/components/table/README.md](./apps/web/src/components/table/README.md) を参照:
+
+```tsx
+import { DataTable, createSelectColumn } from "@/components/table/DataTable"
+import type { ColumnDef } from "@tanstack/react-table"
+
+const columns: ColumnDef<User>[] = [
+  createSelectColumn<User>(),  // 行選択を有効化
+  { accessorKey: "name", header: "名前" },
+  { accessorKey: "email", header: "メール" },
+]
+
+<DataTable
+  columns={columns}
+  data={users}
+  pageSize={10}
+  enableRowSelection
+  manualPagination
+  isLoading={isLoading}
+/>
+```
+
 ### 新しいAPIエンドポイントの追加
 
 1. `apps/api/src/routes/` でルートを定義 (`@hono/zod-openapi`の`createRoute`使用)
@@ -289,5 +319,6 @@ const schema = createFormSchema({
 ## 詳細情報
 
 - より詳しいガイダンス: [CLAUDE.md](./CLAUDE.md)
+- テーブルコンポーネントの使い方: [apps/web/src/components/table/README.md](./apps/web/src/components/table/README.md)
 - モックサーバーの使い方: [apps/web/mock/README.md](./apps/web/mock/README.md)
 - モックサーバー詳細ガイド: [apps/web/mock/USAGE.md](./apps/web/mock/USAGE.md)

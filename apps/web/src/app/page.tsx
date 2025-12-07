@@ -9,16 +9,16 @@ export default async function Home() {
 		<div className="flex min-h-screen items-center justify-center">
 			<div className="w-full max-w-md space-y-8 rounded-lg border p-8">
 				<div className="text-center">
-					<h1 className="text-3xl font-bold">Welcome</h1>
+					<h1 className="font-bold text-3xl">Welcome</h1>
 				</div>
 
 				{session?.user ? (
 					<div className="space-y-4">
 						<div className="rounded-lg bg-green-50 p-4">
 							<p className="font-medium text-green-900">Signed in as:</p>
-							<p className="text-sm text-green-700">{session.user.email}</p>
+							<p className="text-green-700 text-sm">{session.user.email}</p>
 							{session.user.name && (
-								<p className="text-sm text-green-700">Name: {session.user.name}</p>
+								<p className="text-green-700 text-sm">Name: {session.user.name}</p>
 							)}
 						</div>
 						<SignOutButton />
