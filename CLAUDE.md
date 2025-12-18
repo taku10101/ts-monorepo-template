@@ -75,11 +75,12 @@ pnpm prisma:studio
 
 ### テスト (APIのみ)
 ```bash
-# APIディレクトリに移動
-cd apps/api
+# ルートから実行
+pnpm test
 
-# 画像API統合テストの実行
-pnpm exec tsx src/tests/image.test.ts
+# または、APIディレクトリから実行
+cd apps/api
+pnpm test
 
 # 前提条件:
 # 1. MinIOが起動していること (docker compose up -d minio)

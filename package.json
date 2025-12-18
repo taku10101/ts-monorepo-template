@@ -7,6 +7,7 @@
     "dev": "pnpm --parallel dev",
     "build": "pnpm --recursive build",
     "clean": "pnpm --recursive clean",
+    "test": "pnpm --filter @monorepo/api test",
     "typecheck": "pnpm --recursive --parallel run typecheck",
     "fix": "biome check --write apps/web apps/api",
     "biome:check": "biome check apps/web apps/api",
