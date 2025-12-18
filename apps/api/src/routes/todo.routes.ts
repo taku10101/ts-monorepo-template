@@ -1,15 +1,8 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi"
 import type { Todo } from "@/generated/prisma/client"
+import { ErrorSchema, ParamsSchema } from "../schemas/common.schema"
+import { CreateTodoSchema, TodoSchema, UpdateTodoSchema } from "../schemas/todo.schema"
 import { TodoService } from "../services/todo.service"
-
-const TodoSchema = z.object({
-	id: z.string(),
-	title: z.string(),
-	description: z.string().nullable(),
-	completed: z.boolean(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-})
 
 const serializeTodo = (todo: Todo) => ({
 	...todo,
@@ -17,28 +10,11 @@ const serializeTodo = (todo: Todo) => ({
 	updatedAt: todo.updatedAt.toISOString(),
 })
 
-const CreateTodoSchema = z.object({
-	title: z.string().min(1).openapi({ example: "買い物リスト" }),
-	description: z.string().optional().openapi({ example: "牛乳とパンを買う" }),
-})
-
-const UpdateTodoSchema = z.object({
-	title: z.string().min(1).optional().openapi({ example: "買い物リスト" }),
-	description: z.string().optional().openapi({ example: "牛乳とパンを買う" }),
-	completed: z.boolean().optional().openapi({ example: true }),
-})
-
-const ErrorSchema = z.object({
-	error: z.string(),
-})
-
-const ParamsSchema = z.object({
-	id: z.string().openapi({ param: { name: "id", in: "path" } }),
-})
-
 const listTodosRoute = createRoute({
 	method: "get",
 	path: "/todos",
+	summary: "Get all todos",
+	description: "Retrieve a list of all todo items",
 	tags: ["Todos"],
 	responses: {
 		200: {
@@ -47,7 +23,7 @@ const listTodosRoute = createRoute({
 					schema: z.array(TodoSchema),
 				},
 			},
-			description: "List of all todos",
+			description: "Successfully retrieved list of todos",
 		},
 	},
 })
@@ -55,6 +31,8 @@ const listTodosRoute = createRoute({
 const getTodoRoute = createRoute({
 	method: "get",
 	path: "/todos/{id}",
+	summary: "Get a todo by ID",
+	description: "Retrieve a specific todo item by its unique identifier",
 	tags: ["Todos"],
 	request: {
 		params: ParamsSchema,
@@ -66,7 +44,7 @@ const getTodoRoute = createRoute({
 					schema: TodoSchema,
 				},
 			},
-			description: "Get a todo by ID",
+			description: "Successfully retrieved todo",
 		},
 		404: {
 			content: {
@@ -82,6 +60,8 @@ const getTodoRoute = createRoute({
 const createTodoRoute = createRoute({
 	method: "post",
 	path: "/todos",
+	summary: "Create a new todo",
+	description: "Create a new todo item with title and optional description",
 	tags: ["Todos"],
 	request: {
 		body: {
@@ -90,6 +70,8 @@ const createTodoRoute = createRoute({
 					schema: CreateTodoSchema,
 				},
 			},
+			description: "Todo data to create",
+			required: true,
 		},
 	},
 	responses: {
@@ -107,6 +89,8 @@ const createTodoRoute = createRoute({
 const updateTodoRoute = createRoute({
 	method: "put",
 	path: "/todos/{id}",
+	summary: "Update a todo",
+	description: "Update an existing todo item by ID. All fields are optional.",
 	tags: ["Todos"],
 	request: {
 		params: ParamsSchema,
@@ -116,6 +100,8 @@ const updateTodoRoute = createRoute({
 					schema: UpdateTodoSchema,
 				},
 			},
+			description: "Todo data to update",
+			required: true,
 		},
 	},
 	responses: {
@@ -141,6 +127,8 @@ const updateTodoRoute = createRoute({
 const deleteTodoRoute = createRoute({
 	method: "delete",
 	path: "/todos/{id}",
+	summary: "Delete a todo",
+	description: "Delete an existing todo item by ID",
 	tags: ["Todos"],
 	request: {
 		params: ParamsSchema,
