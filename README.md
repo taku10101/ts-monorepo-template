@@ -33,7 +33,8 @@ template/
 │       └── package.json
 ├── packages/         # 共有パッケージ (将来使用予定)
 ├── biome.json        # Biome設定 (Linter/Formatter)
-├── docker-compose.yml # PostgreSQL設定
+├── docker-compose.yml      # Docker設定 (開発環境: PostgreSQL + MinIO)
+├── docker-compose.prod.yml # 本番環境用Docker設定
 └── pnpm-workspace.yaml
 ```
 
@@ -45,8 +46,9 @@ pnpm install
 
 # 2. 環境変数の設定
 cp apps/api/.env.example apps/api/.env
+# .envファイルを編集して、必要に応じて環境変数を調整
 
-# 3. PostgreSQLデータベースの起動
+# 3. PostgreSQLとMinIOの起動
 docker compose up -d
 
 # 4. データベースの初期化
@@ -55,6 +57,8 @@ pnpm prisma:generate  # Prismaクライアント生成
 pnpm prisma:migrate   # マイグレーション実行
 pnpm prisma:seed      # サンプルデータ投入
 ```
+
+**MinIO Web UIへのアクセス**: http://localhost:9001 (minioadmin / minioadmin)
 
 ## 開発
 
@@ -106,6 +110,23 @@ pnpm prisma:seed
 pnpm prisma:studio
 ```
 
+## テスト (API)
+
+```bash
+# APIディレクトリに移動
+cd apps/api
+
+# 画像API統合テストの実行
+pnpm exec tsx src/tests/image.test.ts
+
+# 前提条件:
+# 1. MinIOが起動していること (docker compose up -d minio)
+# 2. APIサーバーが起動していること (pnpm dev)
+# 3. 環境変数が設定されていること (.env ファイル)
+```
+
+詳細は [apps/api/src/tests/README.md](./apps/api/src/tests/README.md) を参照してください。
+
 ## コード品質
 
 ```bash
@@ -138,15 +159,35 @@ pnpm --filter @monorepo/api build
 ## Docker
 
 ```bash
-# PostgreSQL起動
+# PostgreSQLとMinIOの起動 (開発環境)
 docker compose up -d
 
-# PostgreSQL停止
+# 本番環境用の設定で起動
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# サービスの停止
 docker compose down
 
-# ログ表示
+# ログの表示
 docker compose logs -f postgres
+docker compose logs -f minio
 ```
+
+### MinIO / オブジェクトストレージ
+
+- **MinIO Web UI**: http://localhost:9001
+- **ログイン情報**: minioadmin / minioadmin
+- **API エンドポイント**: http://localhost:9000
+- **ヘルスチェック**: `curl http://localhost:9000/minio/health/live`
+
+#### ストレージバックエンドの選択
+
+環境変数 `STORAGE_BACKEND` でストレージバックエンドを選択できます:
+
+- **`minio`** (デフォルト): 開発環境向け。アクセスキー/シークレットキー認証を使用
+- **`s3`**: 本番環境向け。AWS S3とIAMロール認証をサポート
+
+詳細は [CLAUDE.md](./CLAUDE.md) を参照してください。
 
 ## アーキテクチャ
 
@@ -159,9 +200,21 @@ routes/ → services/ → repositories/ → Prisma Client
 ```
 
 - **routes/**: `@hono/zod-openapi`を使用したOpenAPIルート定義とZodスキーマバリデーション
+  - `todo.routes.ts`: Todo CRUD エンドポイント
+  - `image.routes.ts`: 画像アップロード/取得/削除エンドポイント
+- **schemas/**: Zodスキーマ定義
+  - `common.schema.ts`: 共通スキーマ (エラーレスポンスなど)
+  - `image.schema.ts`: 画像関連のリクエスト/レスポンススキーマ
 - **services/**: ビジネスロジック層
+  - `storage.service.ts`: MinIOストレージサービス
+  - `s3-storage.service.ts`: AWS S3ストレージサービス (IAMロール対応)
+  - `todo.service.ts`: Todoビジネスロジック
 - **repositories/**: データアクセス層 (Prisma操作を抽象化)
-- **lib/**: 共通ユーティリティ (Prismaクライアントシングルトン等)
+- **lib/**: 共通ユーティリティ
+  - `prisma.ts`: Prismaクライアントシングルトン
+  - `minio.ts`: MinIOクライアント設定
+- **tests/**: テストファイル
+  - `image.test.ts`: 画像API統合テスト
 - **generated/prisma/**: 自動生成Prismaクライアント (手動編集禁止)
 
 主な特徴:
@@ -202,9 +255,22 @@ Next.js 15 App Routerとカスタムフォームシステム:
 
 APIには `apps/api/.env` が必要です:
 ```bash
+# Database
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/todo_dev"
+
+# API Server
 NODE_ENV=development
 PORT=3001
+
+# Storage (MinIO / S3)
+STORAGE_BACKEND=minio
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_USE_SSL=false
+MINIO_REGION=us-east-1
+MINIO_MAX_FILE_SIZE=10485760  # 10MB
 ```
 
 テンプレートとして `apps/api/.env.example` を使用してください。
@@ -215,10 +281,24 @@ Hono APIサーバー (http://localhost:3001):
 
 - `GET /` - Welcome メッセージ
 - `GET /health` - ヘルスチェック
-- Swagger UI: `http://localhost:3001/ui`
-- OpenAPI仕様: `http://localhost:3001/doc`
+- **Swagger UI**: `http://localhost:3001/ui`
+- **OpenAPI仕様**: `http://localhost:3001/doc`
 
-詳細なエンドポイントはSwagger UIで確認できます。
+### 主要なエンドポイント
+
+#### 画像API
+- `POST /api/images` - 画像のアップロード
+- `GET /api/images/{path}` - 画像の取得
+- `DELETE /api/images/{path}` - 画像の削除
+
+#### Todo API
+- `GET /api/todos` - Todo一覧取得
+- `POST /api/todos` - Todo作成
+- `GET /api/todos/{id}` - Todo詳細取得
+- `PUT /api/todos/{id}` - Todo更新
+- `DELETE /api/todos/{id}` - Todo削除
+
+詳細なエンドポイントとリクエスト/レスポンス仕様はSwagger UIで確認できます。
 
 ## 技術スタック
 
@@ -237,6 +317,7 @@ Hono APIサーバー (http://localhost:3001):
 - **PostgreSQL**: 16
 - **OpenAPI**: @hono/zod-openapi
 - **バリデーション**: Zod
+- **ストレージ**: MinIO / AWS S3 (S3互換)
 - **開発**: tsx (hot-reloading)
 
 ### モックサーバー (apps/web/mock)

@@ -1,0 +1,70 @@
+# Production Docker Compose Configuration
+# This file is intended for production environments where MinIO or S3-compatible services
+# are typically managed externally with IAM role-based authentication.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    container_name: todo-postgres-prod
+    restart: always
+    # In production, use internal networking instead of exposing ports
+    # ports:
+    #   - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+
+  # MinIO is optional in production - typically you would use:
+  # - AWS S3 with IAM roles
+  # - External MinIO cluster
+  # - Other S3-compatible storage
+  #
+  # If using external S3-compatible storage, remove this service and configure
+  # MINIO_ENDPOINT, MINIO_USE_SSL, etc. in your .env file to point to the external service
+  minio:
+    image: ${MINIO_IMAGE:-minio/minio:RELEASE.2024-12-13T22-19-12Z}
+    container_name: todo-minio-prod
+    restart: always
+    # In production, use internal networking or load balancer
+    # ports:
+    #   - "${MINIO_API_PORT:-9000}:9000"
+    #   - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      # Production-specific MinIO settings
+      MINIO_BROWSER: ${MINIO_BROWSER:-on}
+      MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-public}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data_prod:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:
+    driver: local
+  minio_data_prod:
+    driver: local
