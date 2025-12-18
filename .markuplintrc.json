@@ -1,0 +1,30 @@
+{
+	"extends": ["markuplint:recommended"],
+	"specs": {
+		"\\.[jt]sx?$": "@markuplint/html-spec"
+	},
+	"parser": {
+		"\\.[jt]sx?$": "@markuplint/jsx-parser"
+	},
+	"excludeFiles": [
+		"**/node_modules/**",
+		"**/.next/**",
+		"**/dist/**",
+		"**/build/**",
+		"**/coverage/**"
+	],
+	"rules": {
+		"invalid-attr": {
+			"options": {
+				"allowAttrs": ["ref", "key", "value", "onChange", "onClick", "onSubmit"]
+			}
+		},
+		"wai-aria": false,
+		"required-attr": {
+			"severity": "warning"
+		},
+		"use-list": {
+			"severity": "warning"
+		}
+	}
+}
