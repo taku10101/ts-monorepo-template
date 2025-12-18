@@ -19,7 +19,7 @@ pre-push:
   commands:
     # Run CI checks before pushing
     ci:
-      run: pnpm ci
+      run: pnpm run ci
 
     # Type check all projects
     typecheck:
